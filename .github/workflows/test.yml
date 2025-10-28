@@ -1,0 +1,53 @@
+name: Run Tests with Docker and Python
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [x86_64, arm64]  # Add both x86 and ARM architecture
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Set Docker platform
+      run: |
+        echo "Setting up the platform for ${matrix.architecture}"
+        docker buildx create --use
+        docker buildx build --platform linux/${matrix.architecture} --load .
+
+    - name: Run Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml up -d
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Create Python Virtual Environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Install Python dependencies
+      run: |
+        source venv/bin/activate
+        pip install requests
+
+    - name: Run Tests
+      run: |
+        source venv/bin/activate
+        python testall.py
