@@ -27,7 +27,7 @@ jobs:
         echo "Running on ${{ matrix.architecture }} architecture"
         # Set the Docker platform based on the matrix architecture
         export DOCKER_CLI_EXPERIMENTAL=enabled
-        docker-compose -f docker-compose.yml up -d --build --platform linux/${{ matrix.architecture }}
+        docker compose -f docker-compose.yml up -d
 
     - name: Set up Python
       uses: actions/setup-python@v4
