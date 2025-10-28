@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        architecture: [x86_64, arm64]  # Add both x86 and ARM architecture
+        architecture: [x86_64, arm64]  # Testing on both x86 and ARM
 
     steps:
     - name: Checkout code
@@ -24,13 +24,10 @@ jobs:
 
     - name: Set Docker platform
       run: |
-        echo "Setting up the platform for ${matrix.architecture}"
-        docker buildx create --use
-        docker buildx build --platform linux/${matrix.architecture} --load .
-
-    - name: Run Docker Compose
-      run: |
-        docker-compose -f docker-compose.yml up -d
+        echo "Running on ${matrix.architecture} architecture"
+        # Set the Docker platform based on the matrix architecture
+        export DOCKER_CLI_EXPERIMENTAL=enabled
+        docker-compose -f docker-compose.yml up -d --build --platform linux/${matrix.architecture}
 
     - name: Set up Python
       uses: actions/setup-python@v4
